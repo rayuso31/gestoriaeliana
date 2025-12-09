@@ -7,6 +7,7 @@ const WEBHOOK_URL = "https://primary-xdh7-production.up.railway.app/webhook/2f9a
 
 const ChatWidget = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [sessionId] = useState(() => Math.random().toString(36).substring(2) + Date.now().toString(36));
     const [messages, setMessages] = useState([
         { text: "¡Hola! Soy el asistente virtual de Gestoría L'Eliana. ¿En qué puedo ayudarte hoy?", sender: 'bot' }
     ]);
@@ -35,7 +36,10 @@ const ChatWidget = () => {
             const response = await fetch(WEBHOOK_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chatInput: userMessage })
+                body: JSON.stringify({
+                    chatInput: userMessage,
+                    sessionId: sessionId
+                })
             });
 
             const data = await response.json();
