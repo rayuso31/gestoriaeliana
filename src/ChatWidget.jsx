@@ -43,8 +43,25 @@ const ChatWidget = () => {
             });
 
             const data = await response.json();
-            // Asumimos que la respuesta de n8n viene en data.output o data.text. Ajustar según retorno del workflow.
-            const botReply = data.output || data.text || typeof data === 'string' ? data : "Lo siento, hubo un error técnico.";
+
+            // Log para depuración
+            console.log("Respuesta del bot:", data);
+
+            let botReply = "Lo siento, hubo un error técnico.";
+
+            // Intentar extraer texto de diferentes estructuras comunes de n8n
+            if (data.output && typeof data.output === 'string') {
+                botReply = data.output;
+            } else if (data.text && typeof data.text === 'string') {
+                botReply = data.text;
+            } else if (typeof data === 'string') {
+                botReply = data;
+            } else if (Array.isArray(data) && data.length > 0 && data[0].output) {
+                botReply = data[0].output;
+            } else if (typeof data === 'object') {
+                // Si es un objeto desconcido, lo pasamos a string para evitar pantallazo blanco
+                botReply = JSON.stringify(data.output || data);
+            }
 
             setMessages(prev => [...prev, { text: botReply, sender: 'bot' }]);
         } catch (error) {
